@@ -1,0 +1,9 @@
+import request from './request';
+
+export function login(username, password) {
+  return request.post('/admin/auth/login', { username, password });
+}
+
+export function getProfile() {
+  return request.get('/auth/profile');
+}
