@@ -1,7 +1,15 @@
 <template>
   <view class="page">
+    <!-- 待审核 -->
+    <view class="pending-area" v-if="status === 'pending'">
+      <view class="review-icon">📋</view>
+      <view class="review-text">待审核</view>
+      <view class="review-desc">文件已上传，点击下方按钮提交审核</view>
+      <button class="btn-submit" @click="submitReview">提交审核</button>
+    </view>
+
     <!-- 审核中 -->
-    <view class="pending-area" v-if="status === 'pending' || status === 'processing'">
+    <view class="pending-area" v-if="status === 'processing'">
       <view class="review-icon">⏳</view>
       <view class="review-text">审核处理中...</view>
       <view class="review-desc">正在对文档进行全面审核分析</view>
@@ -91,6 +99,7 @@ import { ref, computed } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import reviewApi from '../../api/review';
 import reportApi from '../../api/report';
+import fileApi from '../../api/file';
 import { API_HOST } from '../../config';
 
 const fileId = ref('');
@@ -149,8 +158,25 @@ async function checkResult() {
     summary.value = res.data.risk_summary;
     details.value = res.data.results?.details;
     status.value = res.data.status;
+    fileId.value = res.data.file_id;
   } catch (err) {
     status.value = 'pending';
+  }
+}
+
+async function submitReview() {
+  try {
+    uni.showLoading({ title: '解析文件中...' });
+    await fileApi.getPreview(fileId.value);
+    uni.showLoading({ title: '提交审核...' });
+    await reviewApi.startReview(fileId.value);
+    uni.hideLoading();
+    status.value = 'processing';
+    pollTimer = setInterval(() => fetchRecordByFile(), 3000);
+    fetchRecordByFile();
+  } catch (err) {
+    uni.hideLoading();
+    uni.showToast({ title: err?.message || '提交失败', icon: 'none' });
   }
 }
 
@@ -208,7 +234,7 @@ async function exportPdf() {
 .review-icon { font-size: 80rpx; }
 .review-text { font-size: 34rpx; font-weight: bold; margin: 20rpx 0 10rpx; }
 .review-desc { font-size: 26rpx; color: #999; }
-.btn-refresh { margin-top: 40rpx; background: #1890ff; color: #fff; border-radius: 12rpx; }
+.btn-refresh, .btn-submit { margin-top: 40rpx; background: #1890ff; color: #fff; border-radius: 12rpx; }
 
 .summary-card { background: #fff; border-radius: 16rpx; padding: 30rpx; display: flex; align-items: center; gap: 30rpx; margin-bottom: 20rpx; }
 .risk-badge { font-size: 32rpx; font-weight: bold; padding: 16rpx 24rpx; border-radius: 12rpx; color: #fff; }

@@ -49,6 +49,33 @@ function formatSize(bytes) {
 }
 
 function chooseFile() {
+  // #ifdef APP-PLUS
+  const el = document.createElement('input');
+  el.type = 'file';
+  el.accept = props.accept.split(',').map(e => '.' + e.trim()).join(',');
+  el.style.display = 'none';
+  document.body.appendChild(el);
+  el.onchange = (e) => {
+    document.body.removeChild(el);
+    const f = e.target.files[0];
+    if (!f) return;
+    if (f.size > props.maxSize) {
+      uni.showToast({ title: '文件大小超过限制', icon: 'none' });
+      return;
+    }
+    files.value.push({
+      name: f.name,
+      size: f.size,
+      path: f,
+      status: 'pending',
+      progress: 0,
+    });
+    emit('upload', f);
+  };
+  el.click();
+  // #endif
+
+  // #ifdef MP-WEIXIN
   uni.chooseMessageFile({
     count: 1,
     type: 'file',
@@ -69,6 +96,7 @@ function chooseFile() {
       emit('upload', f);
     },
   });
+  // #endif
 }
 </script>
 

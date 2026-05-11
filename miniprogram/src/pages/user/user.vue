@@ -4,8 +4,13 @@
       <!-- 头像昵称区域 - 使用微信原生能力 -->
       <view class="user-header">
         <view class="avatar-wrap" @click="goEditProfile">
+          <!-- #ifdef H5 -->
+          <image class="avatar-img" :src="avatarSrc" mode="aspectFill" />
+          <!-- #endif -->
+          <!-- #ifndef H5 -->
           <image v-if="userData.avatar_url && userData.avatar_url.length > 0" class="avatar-img" :src="avatarSrc" mode="aspectFill" />
           <view v-else class="avatar-default"></view>
+          <!-- #endif -->
         </view>
         <view class="user-info">
           <text class="nickname">{{ userData.nickname }}</text>
@@ -84,6 +89,9 @@ async function loadUserData() {
 
 const avatarSrc = computed(() => {
   const url = userData.value.avatar_url;
+  // #ifdef H5
+  if (!url) return 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%23e8e8e8%22/%3E%3Ccircle cx=%2250%22 cy=%2238%22 r=%2218%22 fill=%22%23bfbfbf%22/%3E%3Cellipse cx=%2250%22 cy=%2278%22 rx=%2232%22 ry=%2222%22 fill=%22%23bfbfbf%22/%3E%3C/svg%3E';
+  // #endif
   if (!url) return '';
   return url.startsWith('/uploads/') ? API_HOST + url : url;
 });

@@ -51,6 +51,17 @@ export function checkLogin() {
   return token && userInfo;
 }
 
+// 浏览器指纹（仅H5）
+// #ifdef H5
+import FingerprintJS from '@fingerprintjs/fingerprintjs'
+
+export async function browserFingerprint() {
+  const fp = await FingerprintJS.load()
+  const result = await fp.get()
+  return result.visitorId
+}
+// #endif
+
 // 退出登录
 export function logout() {
   uni.removeStorageSync('token');

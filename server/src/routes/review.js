@@ -18,11 +18,11 @@ router.post('/:fileId', requireAuth, async (req, res) => {
       return res.status(400).json({ code: 400, message: '文件尚未解析，请先预览文件' });
     }
 
-    // 检查是否有正在进行的审核
-    const pending = await ReviewRecord.findOne({
-      where: { file_id: fileId, user_id: req.userId, status: ['pending', 'processing'] },
+    // 已有处理中的审核则阻止重复提交（pending状态允许，那是上传时自动创建的）
+    const processing = await ReviewRecord.findOne({
+      where: { file_id: fileId, user_id: req.userId, status: 'processing' },
     });
-    if (pending) {
+    if (processing) {
       return res.status(400).json({ code: 400, message: '该文件正在审核中' });
     }
 

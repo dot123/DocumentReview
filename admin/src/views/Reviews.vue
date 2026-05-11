@@ -77,16 +77,16 @@
         </el-descriptions>
 
         <div v-if="detail.results?.details" style="margin-top:16px">
-          <div v-for="(items, level) in detail.results.details" :key="level">
-            <template v-if="items.length">
-              <el-divider>{{ levelLabel[level] }} ({{ items.length }}项)</el-divider>
-              <div v-for="(item, idx) in items" :key="idx" style="margin:8px 0;padding:8px;background:#f5f5f5;border-radius:4px">
+          <template v-for="level in ['high', 'medium', 'low']" :key="level">
+            <template v-if="detail.results.details[level]?.length">
+              <el-divider>{{ levelLabel[level] }} ({{ detail.results.details[level].length }}项)</el-divider>
+              <div v-for="(item, idx) in detail.results.details[level]" :key="idx" style="margin:8px 0;padding:8px;background:#f5f5f5;border-radius:4px">
                 <strong>{{ item.rule_name }}</strong>
                 <p style="margin:4px 0;color:#666">{{ item.description }}</p>
                 <p style="margin:4px 0;color:#409EFF">建议：{{ item.suggestion }}</p>
               </div>
             </template>
-          </div>
+          </template>
         </div>
       </div>
     </el-dialog>

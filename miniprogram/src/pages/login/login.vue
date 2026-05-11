@@ -19,6 +19,12 @@
         {{ loading ? '登录中...' : '一键登录' }}
       </button>
       <!-- #endif -->
+      <!-- H5端：浏览器指纹一键登录 -->
+      <!-- #ifdef H5 -->
+      <button class="btn-wx-login" :disabled="!agreed || loading" @click="handleH5Login">
+        {{ loading ? '登录中...' : '一键登录' }}
+      </button>
+      <!-- #endif -->
       <view class="privacy-agree">
         <view class="checkbox" :class="{ checked: agreed }" @click.stop="toggleAgree"></view>
         <view class="privacy-text">
@@ -36,11 +42,13 @@
 import { ref } from 'vue';
 import { useUserStore } from '../../store/user';
 import { wxLogin, deviceLogin } from '../../utils/auth';
+// #ifdef H5
+import { browserFingerprint } from '../../utils/auth';
+// #endif
 
 const userStore = useUserStore();
 const agreed = ref(false);
 const loading = ref(false);
-
 function toggleAgree() { agreed.value = !agreed.value; }
 function goPrivacy() { uni.navigateTo({ url: '/pages/privacy/privacy' }); }
 function goAgreement() { uni.navigateTo({ url: '/pages/user-agreement/user-agreement' }); }
@@ -57,7 +65,26 @@ async function handleGetPhone(e) {
     uni.switchTab({ url: '/pages/index/index' });
   } catch (err) {
     uni.hideLoading();
-    uni.showToast({ title: '登录失败', icon: 'none' });
+    uni.showToast({ title: err?.message || '登录失败', icon: 'none' });
+  }
+}
+
+// H5端：浏览器指纹登录
+async function handleH5Login() {
+  if (!agreed.value) { uni.showToast({ title: '请先阅读并同意协议', icon: 'none' }); return; }
+  if (loading.value) return;
+  loading.value = true;
+  try {
+    uni.showLoading({ title: '登录中...' });
+    const fingerprint = await browserFingerprint();
+    await userStore.deviceLogin(fingerprint);
+    uni.hideLoading();
+    uni.switchTab({ url: '/pages/index/index' });
+  } catch (err) {
+    uni.hideLoading();
+    uni.showToast({ title: err?.message || '登录失败', icon: 'none' });
+  } finally {
+    loading.value = false;
   }
 }
 
@@ -74,7 +101,7 @@ async function handleAppLogin() {
     uni.switchTab({ url: '/pages/index/index' });
   } catch (err) {
     uni.hideLoading();
-    uni.showToast({ title: '登录失败', icon: 'none' });
+    uni.showToast({ title: err?.message || '登录失败', icon: 'none' });
   } finally {
     loading.value = false;
   }
@@ -84,21 +111,79 @@ async function handleAppLogin() {
 
 <style scoped>
 .page {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  min-height: 100vh; padding: 40rpx;
-  padding-top: calc(40rpx + var(--status-bar-height)); background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40rpx;
+  padding-top: calc(40rpx + var(--status-bar-height));
+  background: #fff;
 }
-.logo-area { text-align: center; margin-bottom: 80rpx; }
-.logo { font-size: 100rpx; }
-.app-name { font-size: 40rpx; font-weight: bold; color: #333; margin-top: 20rpx; }
-.app-desc { font-size: 28rpx; color: #999; margin-top: 10rpx; }
-.login-area { width: 100%; max-width: 600rpx; }
+
+.logo-area {
+  text-align: center;
+  margin-bottom: 80rpx;
+}
+
+.logo {
+  font-size: 100rpx;
+}
+
+.app-name {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+  margin-top: 20rpx;
+}
+
+.app-desc {
+  font-size: 28rpx;
+  color: #999;
+  margin-top: 10rpx;
+}
+
+.login-area {
+  width: 100%;
+  max-width: 600rpx;
+}
+
 .btn-wx-login {
-  width: 100%; height: 90rpx; line-height: 90rpx;
-  background: #07c160; color: #fff; border-radius: 16rpx; font-size: 32rpx; margin-bottom: 20rpx; border: none;
+  width: 100%;
+  height: 90rpx;
+  line-height: 90rpx;
+  background: #07c160;
+  color: #fff;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+  margin-bottom: 20rpx;
+  border: none;
 }
-.privacy-agree { display: flex; align-items: center; justify-content: center; margin-top: 40rpx; font-size: 24rpx; color: #999; }
-.checkbox { width: 32rpx; height: 32rpx; border: 2rpx solid #ddd; border-radius: 6rpx; margin-right: 10rpx; flex-shrink: 0; }
-.checkbox.checked { background: #1890ff; border-color: #1890ff; }
-.link { color: #1890ff; }
+
+.privacy-agree {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.checkbox {
+  width: 32rpx;
+  height: 32rpx;
+  border: 2rpx solid #ddd;
+  border-radius: 6rpx;
+  margin-right: 10rpx;
+  flex-shrink: 0;
+}
+
+.checkbox.checked {
+  background: #1890ff;
+  border-color: #1890ff;
+}
+
+.link {
+  color: #1890ff;
+}
 </style>

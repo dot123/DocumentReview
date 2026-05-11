@@ -38,7 +38,12 @@
       <el-table-column prop="ip" label="IP" width="140" />
       <el-table-column prop="created_at" label="时间" width="180" :formatter="(r,c) => $date(r.created_at)" />
       <el-table-column label="详情" min-width="200">
-        <template #default="{ row }">{{ row.detail }}</template>
+        <template #default="{ row }">
+          <template v-if="row.detail">
+            {{ parseDetail(row.detail) }}
+          </template>
+          <span v-else style="color:#ccc">-</span>
+        </template>
       </el-table-column>
     </el-table>
 
@@ -70,6 +75,15 @@ const actionMap = {
   start_review: '开始审核', create_rule: '创建规则', update_rule: '更新规则',
   delete_rule: '删除规则', update_user: '更新用户', bind_phone: '绑定手机',
 };
+
+function parseDetail(detail) {
+  try {
+    const obj = typeof detail === 'string' ? JSON.parse(detail) : detail;
+    return obj.description || detail;
+  } catch {
+    return detail;
+  }
+}
 
 onMounted(() => loadList());
 

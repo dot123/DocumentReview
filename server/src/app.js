@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -49,6 +50,14 @@ app.use('/api/marketing', marketingRoutes);
 
 // 静态文件 - 头像
 app.use('/uploads', express.static('uploads'));
+
+// 管理后台静态文件（生产环境：server 直接托管 admin 构建产物）
+const adminDist = path.join(__dirname, '../../admin/dist');
+app.use(express.static(adminDist));
+// SPA fallback: 非 /api 路径都返回 admin/index.html
+app.get(/^\/(?!api\/|uploads\/).*/, (req, res) => {
+  res.sendFile(path.join(adminDist, 'index.html'));
+});
 
 // 健康检查
 app.get('/api/health', (req, res) => {

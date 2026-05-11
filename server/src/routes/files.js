@@ -4,7 +4,7 @@ const path = require('path');
 const { Op } = require('sequelize');
 const { requireAuth } = require('../middleware/auth');
 const { logAction } = require('../middleware/logger');
-const { File, User } = require('../models');
+const { File, User, ReviewRecord } = require('../models');
 const uploadService = require('../services/uploadService');
 const parseService = require('../services/parseService');
 const { v4: uuidv4 } = require('uuid');
@@ -52,6 +52,9 @@ router.post('/upload/direct', requireAuth, async (req, res) => {
       cos_key: filePath,
       upload_status: 'completed',
     });
+
+    // 上传后自动创建待审核记录
+    await ReviewRecord.create({ user_id: req.userId, file_id: file.id, status: 'pending' });
 
     res.json({ code: 0, message: '上传成功', data: { id: file.id } });
   } catch (err) {
@@ -134,6 +137,9 @@ router.post('/upload/complete', requireAuth, async (req, res) => {
       cos_key: filePath, // 兼容旧字段，实际存储本地路径
       upload_status: 'completed',
     });
+
+    // 上传后自动创建待审核记录
+    await ReviewRecord.create({ user_id: req.userId, file_id: file.id, status: 'pending' });
 
     res.json({ code: 0, message: '上传完成', data: { id: file.id } });
   } catch (err) {

@@ -46,7 +46,9 @@ router.post('/auth/login', async (req, res) => {
 
     await OperationLog.create({
       user_id: user.id, action: 'login', target_type: 'admin',
-      target_id: user.id, ip: req.ip,
+      target_id: user.id,
+      detail: JSON.stringify({ description: '管理员登录', nickname: user.nickname }),
+      ip: req.ip,
     }).catch(() => {});
 
     res.json({

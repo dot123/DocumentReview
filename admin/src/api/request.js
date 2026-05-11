@@ -26,9 +26,11 @@ instance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('admin_token');
-      window.location.href = '/login';
+      // 已在登录页时不跳转，避免密码错误时刷新页面
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
-    ElMessage.error(error.message || '网络错误');
     return Promise.reject(error);
   }
 );

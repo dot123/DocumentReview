@@ -113,7 +113,7 @@ CREATE TABLE invite_records (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='邀请记录表';
 
 -- 初始化默认管理员账号（openid需后续替换为真实管理员openid）
-INSERT INTO users (openid, nickname, role) VALUES ('admin_openid_placeholder', '系统管理员', 'admin');
+INSERT INTO `users` (`id`, `openid`, `unionid`, `phone`, `nickname`, `avatar_url`, `role`, `status`, `member_level`) VALUES (1, 'admin_openid_placeholder', NULL, '13800000000', '系统管理员', NULL, 'admin', 'active', 'free');
 
 -- 初始化默认审核规则
 INSERT INTO review_rules (name, category, rule_type, keywords, risk_level, description, suggestion) VALUES

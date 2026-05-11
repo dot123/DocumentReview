@@ -25,8 +25,9 @@ function request(options) {
         if (res.statusCode === 401) {
           uni.removeStorageSync('token');
           uni.removeStorageSync('userInfo');
-          uni.reLaunch({ url: '/pages/login/login' });
-          return reject(new Error('登录已过期'));
+          uni.showToast({ title: res.data?.message || '登录已过期', icon: 'none', duration: 2000 });
+          setTimeout(() => uni.reLaunch({ url: '/pages/login/login' }), 2000);
+          return reject(new Error(res.data?.message || '登录已过期'));
         }
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data);

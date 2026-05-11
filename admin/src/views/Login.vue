@@ -45,7 +45,7 @@ async function handleLogin() {
     ElMessage.success('登录成功');
     router.push('/');
   } catch (err) {
-    ElMessage.error(err?.message || '登录失败');
+    ElMessage.error(err?.response?.data?.message || err?.message || '登录失败');
   }
   loading.value = false;
 }

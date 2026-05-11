@@ -70,6 +70,20 @@ function formatSize(bytes) {
 }
 
 function chooseFile() {
+  if (quota.value && quota.value.remaining <= 0) {
+    uni.showToast({ title: '今日上传次数已用完', icon: 'none' });
+    return;
+  }
+  // #ifdef APP-PLUS || H5
+  chooseFileApp();
+  // #endif
+  // #ifdef MP-WEIXIN
+  chooseFileWx();
+  // #endif
+}
+
+// 微信小程序：从聊天记录选文件
+function chooseFileWx() {
   console.log('>>> 调用 chooseMessageFile');
   uni.chooseMessageFile({
     count: 1,
@@ -98,23 +112,66 @@ function chooseFile() {
   });
 }
 
+// App端：系统文件选择器
+function chooseFileApp() {
+  const el = document.createElement('input');
+  el.type = 'file';
+  el.accept = '.doc,.docx,.pdf';
+  el.style.display = 'none';
+  document.body.appendChild(el);
+  el.onchange = (e) => {
+    document.body.removeChild(el);
+    const f = e.target.files[0];
+    if (!f) return;
+    const name = f.name.toLowerCase();
+    if (!name.endsWith('.docx') && !name.endsWith('.doc') && !name.endsWith('.pdf')) {
+      uni.showToast({ title: '仅支持 Word(.docx) 和 PDF 文件', icon: 'none' });
+      return;
+    }
+    file.value = {
+      name: f.name,
+      size: f.size,
+      path: f,
+      type: name.endsWith('.pdf') ? 'pdf' : 'docx',
+    };
+    uploaded.value = false;
+    progress.value = 0;
+  };
+  el.click();
+}
+
 async function doUpload() {
   if (!file.value) return;
   uploading.value = true;
   progress.value = 10;
   try {
     const f = file.value;
-    const fs = uni.getFileSystemManager();
+    let base64;
 
-    // 读取整个文件
+    // #ifdef APP-PLUS || H5
+    // App/H5端：用FileReader读取Web File对象
+    base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        const idx = result.indexOf('base64,');
+        resolve(idx >= 0 ? result.substring(idx + 7) : result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(f.path);
+    });
+    // #endif
+
+    // #ifdef MP-WEIXIN
+    const fs = uni.getFileSystemManager();
     const data = await new Promise((resolve, reject) => {
       fs.readFile({ filePath: f.path, success: r => resolve(r.data), fail: reject });
     });
+    base64 = uni.arrayBufferToBase64(data);
+    // #endif
 
     progress.value = 50;
 
-    // 一次性上传base64
-    const base64 = uni.arrayBufferToBase64(data);
     const res = await request.post('/files/upload/direct', {
       original_name: f.name,
       file_type: f.type,

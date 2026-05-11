@@ -54,12 +54,17 @@ async function reviewFile(fileId, userId) {
   const startTime = Date.now();
 
   try {
-    // 更新状态为处理中
-    const record = await ReviewRecord.create({
-      user_id: userId,
-      file_id: fileId,
-      status: 'processing',
+    // 查找已有的待审核记录（上传时自动创建），没有则新建
+    let record = await ReviewRecord.findOne({
+      where: { file_id: fileId, user_id: userId, status: 'pending' },
     });
+    if (!record) {
+      record = await ReviewRecord.create({
+        user_id: userId,
+        file_id: fileId,
+        status: 'pending',
+      });
+    }
 
     // 获取文件文本内容
     const file = await File.findOne({ where: { id: fileId, user_id: userId } });
@@ -67,6 +72,9 @@ async function reviewFile(fileId, userId) {
       await record.update({ status: 'failed', results: { error: '文件内容为空' } });
       return record;
     }
+
+    // 更新状态为处理中
+    await record.update({ status: 'processing' });
 
     const text = file.text_content;
 

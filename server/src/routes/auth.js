@@ -47,6 +47,7 @@ router.post('/device-login', async (req, res) => {
       action: 'device_login',
       target_type: 'user',
       target_id: user.id,
+      detail: JSON.stringify({ description: '设备指纹登录', nickname: user.nickname }),
       ip: req.ip,
     }).catch(() => {});
 
@@ -124,6 +125,7 @@ router.post('/login', async (req, res) => {
       action: 'login',
       target_type: 'user',
       target_id: user.id,
+      detail: JSON.stringify({ description: '微信登录', nickname: user.nickname }),
       ip: req.ip,
     }).catch(() => {});
 
