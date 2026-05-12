@@ -41,7 +41,7 @@
       <view class="feature-list">
         <view class="feature-item">
           <text class="feature-dot"></text>
-          <text>关键词风险筛查</text>
+          <text>AI智能风险分析</text>
         </view>
         <view class="feature-item">
           <text class="feature-dot"></text>
@@ -53,7 +53,7 @@
         </view>
         <view class="feature-item">
           <text class="feature-dot"></text>
-          <text>内容相似度比对</text>
+          <text>11项风险维度覆盖</text>
         </view>
         <view class="feature-item">
           <text class="feature-dot"></text>

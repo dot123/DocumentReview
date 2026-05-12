@@ -4,7 +4,7 @@
     <view class="content">
       <view class="section">
         <text class="section-title">一、服务说明</text>
-        <text class="section-text">文书审核助手（以下简称"本服务"）是一款提供文书合同智能审核工具的小程序。本服务基于内置规则库与AI辅助技术，为用户上传的文书合同提供风险筛查、条款校验、漏洞检测等审核服务。</text>
+        <text class="section-text">文书审核助手（以下简称"本服务"）是一款提供文书合同智能审核工具的小程序。本服务基于AI智能分析技术，为用户上传的文书合同提供风险筛查、条款校验、漏洞检测等审核服务。</text>
       </view>
       <view class="section">
         <text class="section-title">二、用户注册</text>
@@ -16,7 +16,7 @@
       </view>
       <view class="section">
         <text class="section-title">四、免责声明</text>
-        <text class="section-text">本服务提供的审核结果基于规则匹配与AI分析，可能存在误差或遗漏。对于因依赖审核结果而产生的任何损失，本服务不承担法律责任。建议用户在重要场合咨询专业律师。</text>
+        <text class="section-text">本服务提供的审核结果基于AI智能分析，可能存在误差或遗漏。对于因依赖审核结果而产生的任何损失，本服务不承担法律责任。建议用户在重要场合咨询专业律师。</text>
       </view>
       <view class="section">
         <text class="section-title">五、服务变更</text>

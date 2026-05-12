@@ -39,7 +39,7 @@ module.exports = {
   // 推荐DeepSeek: https://platform.deepseek.com 申请API Key，极低价
   ai: {
     apiKey: '',  // 填入你的API Key
-    apiEndpoint: 'https://api.deepseek.com',
-    model: 'deepseek-chat',
+    apiEndpoint: 'https://api.longcat.chat/openai',
+    model: 'LongCat-Flash-Chat',
   },
 };

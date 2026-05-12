@@ -67,7 +67,14 @@
         <text class="item-name">{{ idx + 1 }}. [{{ item.category }}] {{ item.rule_name }}</text>
         <text class="item-desc">问题：{{ item.description }}</text>
         <text class="item-suggest">建议：{{ item.suggestion }}</text>
+        <text class="item-ai-suggest" v-if="item.ai_suggestion">AI建议：{{ item.ai_suggestion }}</text>
       </view>
+    </view>
+
+    <!-- AI智能分析 -->
+    <view class="card" v-if="report.aiSummary">
+      <view class="card-title" style="color:#722ed1">四、AI 智能分析</view>
+      <text class="ai-summary-text">{{ report.aiSummary }}</text>
     </view>
 
     <!-- 声明 -->
@@ -174,9 +181,11 @@ function doPrint() {
 
 .risk-item { margin-top: 16rpx; padding-top: 16rpx; border-top: 1rpx solid #f0f0f0; }
 .item-name { font-size: 28rpx; font-weight: bold; display: block; }
-.item-desc { font-size: 26rpx; color: #666; display: block; margin-top: 6rpx; }
+.item-desc { font-size: 26rpx; color: #ff4d4f; display: block; margin-top: 6rpx; }
 .item-suggest { font-size: 26rpx; color: #1890ff; display: block; margin-top: 6rpx; }
+.item-ai-suggest { font-size: 26rpx; color: #722ed1; display: block; margin-top: 4rpx; }
 
+.ai-summary-text { font-size: 26rpx; color: #333; line-height: 1.8; }
 .empty { text-align: center; padding: 200rpx 40rpx; font-size: 30rpx; color: #999; }
 .disclaimer { font-size: 24rpx; color: #999; text-align: center; padding: 30rpx; }
 .bottom-actions { display: flex; gap: 20rpx; padding-bottom: 40rpx; }

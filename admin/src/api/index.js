@@ -1,13 +1,6 @@
 import request from './request';
 
 export default {
-  // 规则管理
-  getRules(params) { return request.get('/admin/rules', { params }); },
-  createRule(data) { return request.post('/admin/rules', data); },
-  updateRule(id, data) { return request.put(`/admin/rules/${id}`, data); },
-  deleteRule(id) { return request.delete(`/admin/rules/${id}`); },
-  batchToggleRules(data) { return request.put('/admin/rules/batch/toggle', data); },
-
   // 用户管理
   getUsers(params) { return request.get('/admin/users', { params }); },
   getUserDetail(id) { return request.get(`/admin/users/${id}`); },

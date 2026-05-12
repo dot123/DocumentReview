@@ -1,6 +1,12 @@
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 
+function formatDateTime(date) {
+  const d = new Date(date);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
 // 中文字体路径 (macOS系统自带)
 const FONT_PATH = 'fonts/ChineseFont.ttf';
 const FONT_NAME = 'ChineseFont';
@@ -16,7 +22,7 @@ function buildReportData(record, file) {
       name: file.original_name,
       type: file.file_type,
       size: formatFileSize(file.file_size),
-      reviewTime: record.created_at,
+      reviewTime: formatDateTime(record.created_at),
       duration: record.duration,
     },
     riskSummary: {
@@ -27,7 +33,8 @@ function buildReportData(record, file) {
     },
     riskLevel: summary.high > 0 ? '高风险' : (summary.medium > 0 ? '中风险' : (summary.total > 0 ? '低风险' : '无风险')),
     details,
-    generatedAt: new Date().toISOString(),
+    aiSummary: (record.results && record.results.ai && record.results.ai.summary) || '',
+    generatedAt: formatDateTime(new Date()),
   };
 }
 
@@ -112,30 +119,26 @@ function generatePdf(reportData) {
           doc.addPage();
         }
         doc.text(`${idx + 1}. [${item.category}] ${item.rule_name}`);
-        doc.fontSize(10).fillColor('#666666');
+        doc.fontSize(10).fillColor('#ff4d4f');
         doc.text(`   问题：${item.description}`);
+        doc.fontSize(10).fillColor('#1890ff');
         doc.text(`   建议：${item.suggestion}`);
-        if (item.match_count) {
-          doc.text(`   匹配次数：${item.match_count}`);
-        }
-        if (item.matches && item.matches[0]) {
-          doc.text(`   示例：${item.matches[0].context}`);
+        if (item.ai_suggestion) {
+          doc.fontSize(10).fillColor('#722ed1');
+          doc.text(`   AI建议：${item.ai_suggestion}`);
         }
         doc.fillColor('#000000');
         doc.moveDown(0.5);
       });
     }
 
-    // 相似度比对
-    const similarity = (reportData.details && reportData.details.similarity) || [];
-    if (similarity.length > 0) {
-      doc.addPage();
-      doc.fontSize(14).text('四、重复度比对', { underline: true });
+    // AI智能分析
+    if (reportData.aiSummary) {
+      if (doc.y > 650) { doc.addPage(); }
+      doc.fontSize(14).fillColor('#722ed1').text('四、AI 智能分析', { underline: true });
       doc.moveDown(0.5);
-      doc.fontSize(11).fillColor('#000000');
-      similarity.forEach((s, idx) => {
-        doc.text(`${idx + 1}. 与文件#${s.file_id}存在相似内容 (${s.similar_sentences}/${s.total_sentences}处相似)`);
-      });
+      doc.fontSize(10).fillColor('#333333');
+      doc.text(reportData.aiSummary, { width: 495, lineGap: 4 });
       doc.moveDown(1);
     }
 

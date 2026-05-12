@@ -19,12 +19,6 @@ const routes = [
         meta: { title: '数据概览', icon: 'DataAnalysis' },
       },
       {
-        path: 'rules',
-        name: 'Rules',
-        component: () => import('../views/Rules.vue'),
-        meta: { title: '规则管理', icon: 'Setting' },
-      },
-      {
         path: 'users',
         name: 'Users',
         component: () => import('../views/Users.vue'),

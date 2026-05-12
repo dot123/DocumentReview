@@ -4,7 +4,6 @@ const config = require('../../config');
 const { requireAuth, requireAdmin } = require('../../middleware/auth');
 const { User, OperationLog } = require('../../models');
 const { getRedis } = require('../../config/db');
-const rulesRouter = require('./rules');
 const usersRouter = require('./users');
 const reviewsRouter = require('./reviews');
 const logsRouter = require('./logs');
@@ -63,7 +62,6 @@ router.post('/auth/login', async (req, res) => {
 
 // 所有管理接口都需要登录+管理员权限
 router.use(requireAuth, requireAdmin);
-router.use('/rules', rulesRouter);
 router.use('/users', usersRouter);
 router.use('/reviews', reviewsRouter);
 router.use('/logs', logsRouter);

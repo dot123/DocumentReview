@@ -49,6 +49,7 @@
             </view>
             <text class="risk-desc">{{ item.description }}</text>
             <text class="risk-suggest">建议：{{ item.suggestion }}</text>
+            <text class="risk-ai-suggest" v-if="item.ai_suggestion">AI建议：{{ item.ai_suggestion }}</text>
             <view class="risk-context" v-if="item.matches && item.matches[0]">
               匹配：{{ item.matches[0].context }}
             </view>
@@ -85,6 +86,14 @@
         </view>
       </view>
 
+      <!-- AI审核总结 -->
+      <view class="ai-section" v-if="aiSummary">
+        <view class="section-title">AI 智能分析</view>
+        <view class="ai-card">
+          <text class="ai-text">{{ aiSummary }}</text>
+        </view>
+      </view>
+
       <!-- 操作按钮 -->
       <view class="actions" v-if="status === 'completed'">
         <button class="btn-report" @click="goReport">查看审核报告</button>
@@ -107,6 +116,7 @@ const recordId = ref('');
 const status = ref('pending');
 const summary = ref({ high: 0, medium: 0, low: 0, total: 0 });
 const details = ref({ high: [], medium: [], low: [] });
+const aiSummary = ref('');
 let pollTimer = null;
 
 onLoad((options) => {
@@ -145,6 +155,7 @@ async function fetchRecordByFile() {
       const detailRes = await reviewApi.getResult(record.id);
       summary.value = detailRes.data.risk_summary;
       details.value = detailRes.data.results?.details;
+      aiSummary.value = detailRes.data.results?.ai?.summary || '';
     }
     if (record.status === 'failed') {
       clearInterval(pollTimer);
@@ -157,6 +168,7 @@ async function checkResult() {
     const res = await reviewApi.getResult(recordId.value);
     summary.value = res.data.risk_summary;
     details.value = res.data.results?.details;
+    aiSummary.value = res.data.results?.ai?.summary || '';
     status.value = res.data.status;
     fileId.value = res.data.file_id;
   } catch (err) {
@@ -259,11 +271,16 @@ async function exportPdf() {
 .risk-badge-sm.medium { background: #faad14; }
 .risk-badge-sm.low { background: #52c41a; }
 .risk-name { font-size: 28rpx; font-weight: bold; flex: 1; }
-.risk-desc { font-size: 26rpx; color: #666; display: block; margin-bottom: 8rpx; }
+.risk-desc { font-size: 26rpx; color: #ff4d4f; display: block; margin-bottom: 8rpx; }
 .risk-suggest { font-size: 26rpx; color: #1890ff; display: block; }
+.risk-ai-suggest { font-size: 26rpx; color: #722ed1; display: block; margin-top: 4rpx; }
 .risk-context { font-size: 24rpx; color: #999; margin-top: 8rpx; background: #f5f5f5; padding: 10rpx; border-radius: 8rpx; }
 
 .empty-risk { text-align: center; padding: 60rpx; color: #52c41a; font-size: 30rpx; }
+.ai-section { margin-top: 20rpx; }
+.ai-card { background: linear-gradient(135deg, #f0f5ff, #e6f7ff); border-radius: 16rpx; padding: 24rpx; border: 1rpx solid #91d5ff; }
+.ai-text { font-size: 26rpx; color: #333; line-height: 1.8; }
+
 .actions { display: flex; gap: 20rpx; margin-top: 40rpx; }
 .btn-report { flex: 1; background: #1890ff; color: #fff; border-radius: 12rpx; font-size: 30rpx; }
 .btn-export { flex: 1; background: #fff; color: #1890ff; border: 1px solid #1890ff; border-radius: 12rpx; font-size: 30rpx; }
