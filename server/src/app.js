@@ -34,7 +34,7 @@ app.use((req, res, next) => {
       try {
         const body = JSON.stringify(req.body);
         if (body && body !== '{}') console.log(`    body: ${body.substring(0, 200)}`);
-      } catch (_) {}
+      } catch (_) { }
     }
   });
   next();
@@ -73,6 +73,30 @@ app.use((err, req, res, _next) => {
   });
 });
 
+// 确保默认管理员账号存在
+async function seedAdmin() {
+  const { User } = require('./models');
+  const [admin, created] = await User.findOrCreate({
+    where: { phone: '13800000000', role: 'admin' },
+    defaults: {
+      openid: 'admin_openid_placeholder',
+      phone: '13800000000',
+      nickname: '系统管理员',
+      role: 'admin',
+      status: 'active',
+      member_level: 'free',
+    },
+  });
+  if (created) {
+    console.log('已创建默认管理员账号: 13800000000 / admin123');
+  } else {
+    // 确保openid存在（已有的admin可能openid为空）
+    if (!admin.openid) {
+      await admin.update({ openid: 'admin_openid_placeholder' });
+    }
+  }
+}
+
 // 启动服务
 async function start() {
   try {
@@ -80,6 +104,7 @@ async function start() {
     console.log('MySQL连接成功');
     await sequelize.sync({ alter: true });
     console.log('数据表同步完成');
+    await seedAdmin();
     app.listen(config.port, () => {
       console.log(`服务已启动: http://0.0.0.0:${config.port}`);
     });
