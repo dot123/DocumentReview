@@ -1,6 +1,6 @@
 <template>
   <view class="page">
-    <view class="empty" v-if="list.length === 0">
+    <view class="empty" v-if="!loading && list.length === 0">
       <text class="empty-text">暂无审核记录</text>
       <button class="btn-upload" @click="goUpload">上传文件开始审核</button>
     </view>
@@ -37,6 +37,7 @@ import { formatDate } from '../../utils/auth';
 const list = ref([]);
 const page = ref(1);
 const hasMore = ref(true);
+const loading = ref(true);
 const statusMap = {
   pending: '待审核',
   processing: '处理中',
@@ -47,6 +48,7 @@ const statusMap = {
 onShow(() => {
   page.value = 1;
   list.value = [];
+  loading.value = true;
   loadList();
 });
 
@@ -56,6 +58,7 @@ async function loadList() {
     list.value = page.value === 1 ? res.data.list : [...list.value, ...res.data.list];
     hasMore.value = list.value.length < res.data.total;
   } catch (_) {}
+  loading.value = false;
 }
 
 function loadMore() {

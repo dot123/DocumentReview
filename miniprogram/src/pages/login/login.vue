@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" v-if="ready">
     <view class="logo-area">
       <view class="logo">📄</view>
       <view class="app-name">智审文书</view>
@@ -40,6 +40,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { onLoad } from '@dcloudio/uni-app';
 import { useUserStore } from '../../store/user';
 import { wxLogin, deviceLogin } from '../../utils/auth';
 // #ifdef H5
@@ -49,6 +50,16 @@ import { browserFingerprint } from '../../utils/auth';
 const userStore = useUserStore();
 const agreed = ref(false);
 const loading = ref(false);
+const ready = ref(false);
+
+onLoad(() => {
+  const token = uni.getStorageSync('token');
+  if (token) {
+    uni.switchTab({ url: '/pages/index/index' });
+    return;
+  }
+  ready.value = true;
+});
 function toggleAgree() { agreed.value = !agreed.value; }
 function goPrivacy() { uni.navigateTo({ url: '/pages/privacy/privacy' }); }
 function goAgreement() { uni.navigateTo({ url: '/pages/user-agreement/user-agreement' }); }
